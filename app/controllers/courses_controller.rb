@@ -1,5 +1,7 @@
 class CoursesController < ApplicationController
 
+  before_action :authenticate_user!, only: [:new, :create]
+
   def index
     @courses = Course.all
   end
@@ -12,14 +14,37 @@ class CoursesController < ApplicationController
     @course = Course.new
   end
 
+  def edit
+    @course = Course.find(params[:id])
+  end
+
   def create
     @course = Course.new(course_params)
+    @course.user = current_user
 
     if @course.save
       redirect_to courses_path
     else
       render :new
     end
+  end
+
+  def update
+    @course = Course.find(params[:id])
+
+    if @course.update(course_params)
+      redirect_to course_path(@course)
+    else
+      render :edit
+    end
+
+  end
+
+  def destroy
+    @course = Course.find(params[:id])
+    @course.destroy
+
+    redirect_to courses_path
   end
 
   private
